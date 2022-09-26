@@ -1,26 +1,28 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import { Header } from './Composants/Header.Composants';
+import { Tchat } from './Composants/Tchat.Formulaire.Composants';
 
-function App() {
+
+
+
+const App = () => {
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+     
+           <h2>ECODIRECT TCHAT</h2>
+           <h1>Tchat</h1>
+           <h3>Thèmes</h3>
+                <h4 className='choix'><i className="fa-solid fa-droplet"> </i>EAUX</h4>  
+                {/* <br/><br/><br/><br/><br/><br/> */}
+      <Tchat/>
+      <Tchat/>
+      <Tchat/>
+      {/* <Tchat/>
+      <Tchat/> */}
+    </>
   );
-}
+}//open weach
 
 export default App;

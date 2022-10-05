@@ -17,8 +17,6 @@ const App = () => {
                 <h4 className='choix'><i className="fa-solid fa-droplet"> </i>EAUX</h4>  
                 {/* <br/><br/><br/><br/><br/><br/> */}
       <Tchat/>
-      <Tchat/>
-      <Tchat/>
       {/* <Tchat/>
       <Tchat/> */}
     </>

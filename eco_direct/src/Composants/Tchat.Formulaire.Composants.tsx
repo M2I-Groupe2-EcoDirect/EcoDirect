@@ -1,30 +1,63 @@
-import { useState } from 'react';
-import React from 'react';
+
+import React, { useState } from 'react';
 import '../tchat.css';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+
+
 
 
 export const Tchat = () => {
 
+    const yupShema = yup.object({
+        texte:yup.string().required("Le champs est onligatoire"),
+    })
 
+
+    const { 
+        register,
+        handleSubmit,
+        getValues,
+        watch,
+        formState: {errors},
+     } = useForm({
+        defaultValues: {
+            texte:"",
+        },
+        resolver:yupResolver(yupShema),
+        
+    });
+
+  //  watch('name');
+    
+    function submit(values: any){
+        console.log(values);
+    }
+    console.log(errors);
 
     return(
         <>
-       
-            <form className='informations'>
-            <div className='image'></div>    
-                    <div className='texte'>  
-                        <textarea className="textera"placeholder='Veuillez écrire'>                              
-                        </textarea>
-                        <div className='button'>
-                         <button className='envoie' type="button">Répondre au commentaire</button> 
-                        </div>
-                        
-                         <br/><br/> 
-                    </div>  
-                                               
+            <form onSubmit={handleSubmit(submit)}className='informations'>    
+                    <div className='texte'>
+                    <div className='image'></div>
+                        <input
+                        {...register("texte",{
+                          //  disabled: true,
+                          required:{
+                            value: true,
+                            message: "Le champs est obligatoire"                          }
+                        })}
+                        id="texte"
+                        className="textera"
+                        type="text"/>                         
+                    </div>   
+                    {errors?.texte && <p>{errors.texte.message}</p>}    
+                                          
             </form>   
-             <br/> 
-            
+            <div className='button'>
+                 <button id="texte"className='envoie' type="button">Répondre au commentaire</button> 
+            </div>
           
             <i className="fa-solid fa-thumbs-up"></i>            
         </>

@@ -8,10 +8,10 @@ import { yupResolver } from '@hookform/resolvers/yup';
 
 
 
-export const Tchat = () => {
+export const TchatFormulaire = () => {
 
     const yupShema = yup.object({
-        texte:yup.string().required("Le champs est onligatoire"),
+        texte:yup.string().required("Le champs est obligatoire"),
     })
 
 
@@ -25,7 +25,9 @@ export const Tchat = () => {
         defaultValues: {
             texte:"",
         },
+        
         resolver:yupResolver(yupShema),
+        
         
     });
 
@@ -33,17 +35,18 @@ export const Tchat = () => {
     
     function submit(values: any){
         console.log(values);
+      
     }
     console.log(errors);
 
     return(
         <>
-            <form onSubmit={handleSubmit(submit)}className='informations'>    
+            <form /*method='POST'*/ className='informations'>    
                     <div className='texte'>
                     <div className='image'></div>
                         <input
                         {...register("texte",{
-                          //  disabled: true,
+                        // disabled: true,
                           required:{
                             value: true,
                             message: "Le champs est obligatoire"                          }
@@ -53,11 +56,12 @@ export const Tchat = () => {
                         type="text"/>                         
                     </div>   
                     {errors?.texte && <p>{errors.texte.message}</p>}    
+                    <div className='button'>
+                 <button id="texte"className='envoie' type="button" onClick={handleSubmit(submit)}>Répondre au commentaire</button> 
+            </div>
                                           
             </form>   
-            <div className='button'>
-                 <button id="texte"className='envoie' type="button">Répondre au commentaire</button> 
-            </div>
+            
           
             <i className="fa-solid fa-thumbs-up"></i>            
         </>

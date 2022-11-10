@@ -1,0 +1,61 @@
+
+const API_KEY = "c425b648-c56f-4950-9b29-dcf2bf47c2de";
+const URI = "https://data-api.globalforestwatch.org/dataset"
+
+class GFWService {
+    getAllData = () => {
+        return fetch(`${URI}s`).then((response) => response.json()).catch(err => console.error(err));
+    }
+
+    getDataByDatasetName = (dataSetName: string) => {
+        return fetch(`${URI}/${dataSetName}`).then((response) => response.json()).catch(err => console.error(err));
+    }
+
+    getLatestDataByDatasetName = (dataSetName: string) => {
+        return fetch(`${URI}/${dataSetName}`).then((response) => response.json()).catch(err => console.error(err));
+    }
+
+    getTreeCoverLoss = (dataSetName: string, dateDebut: number, dateFin: number) => {
+        return fetch(`${URI}/${dataSetName}/latest/query`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": API_KEY
+            },
+            body: JSON.stringify(
+                {
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [
+                                    -2.204776265875296,
+                                    48.269718198680465
+                                ],
+                                [
+                                    -2.204776265875296,
+                                    42.64003967180233
+                                ],
+                                [
+                                    6.702838746263268,
+                                    42.64003967180233
+                                ],
+                                [
+                                    6.702838746263268,
+                                    48.269718198680465
+                                ],
+                                [
+                                    -2.204776265875296,
+                                    48.269718198680465
+                                ]
+                            ],
+                        ],
+                    },
+                    "sql": `SELECT SUM(area__ha), umd_tree_cover_loss__year FROM results WHERE umd_tree_cover_loss__year >= ${dateDebut} AND umd_tree_cover_loss__year <= ${dateFin} GROUP BY umd_tree_cover_loss__year`
+                }
+            )
+        }).then((response) => response.json()).catch(err => console.error(err));
+    }
+}
+
+export const GFWservice = Object.freeze(new GFWService());

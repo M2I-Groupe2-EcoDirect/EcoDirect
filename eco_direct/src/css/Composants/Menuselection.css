@@ -3,3 +3,8 @@ section{
     flex-direction: column;
     align-items: flex-start;
 }
+
+.image{
+    height: auto;
+    max-width: 50%;
+}

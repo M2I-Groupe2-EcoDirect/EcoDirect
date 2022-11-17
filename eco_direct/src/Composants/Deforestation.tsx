@@ -1,5 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react'
-import { DataModel } from '../Models/DataModel';
+import React, { ChangeEvent, OptionHTMLAttributes, SelectHTMLAttributes, useEffect, useState } from 'react'
 import { GFWservice } from '../Services/GFWService';
 import {
     LineChart,
@@ -11,33 +10,29 @@ import {
     Legend
 } from 'recharts';
 import { TreeCoverLoss, TreeLossType } from '../Models/TreeLossType';
+import { ListYearType } from '../Models/ListeYearType';
 
 export const Deforestation = () => {
 
-    const [data, setData] = useState<DataModel>();
+    // Quantité perte forestière
     const [treeCoverLoss, setTreeCoverLoss] = useState<TreeCoverLoss[]>();
+    // plage d'année
     const [years, setYears] = useState<number[]>([
         2001,
         2021
     ]);
 
+    // Liste des année présentes dans l'Api
+    const [listYear, setListYear] = useState<ListYearType>();
+
     useEffect(() => {
-        getDataByDatasetName();
         getTreeCoverLoss(years[0], years[1]);
-    }, [])
+        getYears("umd_tree_cover_loss")
+    }, [years])
 
-    /** 
-     * Fonction qui permet de recuperer la liste compete des jeux de données
-    */
-    const getAllData = () => {
-        GFWservice.getAllData().then((item) => setData(item)).catch(err => console.error(err));
-    }
 
-    /**
-     * Fonction qui permet de récupérer un jeux de donnée précis
-     */
-    const getDataByDatasetName = () => {
-        GFWservice.getDataByDatasetName("umd_tree_cover_loss").then((item: DataModel) => setData(item));
+    const getYears = (dataSetName: string) => {
+        GFWservice.getYears(dataSetName).then(response => setListYear(response)).catch(error => console.error(error));
     }
 
     /**
@@ -51,36 +46,33 @@ export const Deforestation = () => {
      * Méthode qui change l'année de départ
      * @param e ChangeEvent<HTMLInputElement>
      */
-    const changeYearStart = (e:ChangeEvent<HTMLInputElement>) => {
+    const changeYearStart = (e: ChangeEvent<HTMLSelectElement>) => {
         setYears([parseInt(e.target.value), years[1]])
+        
     }
     /**
      * Méthode qui change l'année d'arrivée
      * @param e ChangeEvent<HTMLInputElement>
      */
-    const changeYearEnd = (e:ChangeEvent<HTMLInputElement>) => {
-        setYears([years[0],parseInt(e.target.value)])
+    const changeYearEnd = (e:  ChangeEvent<HTMLSelectElement>) => {
+        setYears([years[0], parseInt(e.target.value)])
     }
 
-    const getTreeCoverLossRefresh = (e:React.MouseEvent<HTMLButtonElement>) => {
+    /**
+     * Fonction qui permet d'envoyer une requête a L'API pour récupérer la perte forestière entre 2 dates
+     * @param e React.MouseEvent<HTMLButtonElement>
+     */
+    const getTreeCoverLossRefresh = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         setTreeCoverLoss([]);
-        getTreeCoverLoss(years[0],years[1])
+        getTreeCoverLoss(years[0], years[1])
     }
 
 
 
     return (
         <>
-            <p>titre du set de donnée: {data?.data.dataset}</p>
-            <ul>
-                <p>La liste des versions:</p>
-                {
-                    data?.data.versions.map(((version, key) => {
-                        return <li key={key}><p>{version}</p></li>
-                    }))
-                }
-            </ul>
+            <h1>Perte de la couverture forestière en hectare</h1>
             <LineChart
                 width={500}
                 height={300}
@@ -105,12 +97,34 @@ export const Deforestation = () => {
             </LineChart>
 
             <div>
+                <p>Perte total durant cette période: </p>
+            </div>
+            <div>
                 <label htmlFor="">Anne de départ</label>
-                <input type="number" name="" id="" onChange={changeYearStart}/>
+                {
+                    listYear === undefined ? <p>Chargement des année en cours...</p>
+                        :
+                        <select onChange={changeYearStart}>
+                            {listYear && listYear.data.map((year, key) => {
+                                return <option value={year.umd_tree_cover_loss__year}  key={key}>{year.umd_tree_cover_loss__year}</option>
+                            })}
+                        </select>
+                }
+
                 <label htmlFor="">Anne d'arrivé</label>
-                <input type="number" onChange={changeYearEnd}/>
+
+                {
+                    listYear === undefined ? <p>Chargement des année en cours...</p>
+                        :
+                        <select onChange={changeYearEnd}>
+                            {listYear && listYear.data.map((year, key) => {
+                                return <option value={year.umd_tree_cover_loss__year} key={key}>{year.umd_tree_cover_loss__year}</option>
+                            })}
+                        </select>
+                }
+
                 <button onClick={getTreeCoverLossRefresh}>Actualiser</button>
-                {treeCoverLoss?.length == 0? <p>Chargement en cour...</p> : <p></p>}
+                {treeCoverLoss?.length === 0 ? <p>Chargement en cours...</p> : <p></p>}
             </div>
         </>
     )

@@ -1,4 +1,4 @@
-const API_KEY = "4fa831592ca19ca577c3d24d285b6bbe"
+const API_KEY = process.env.REACT_APP_API_OWM;
 const URI = "http://api.openweathermap.org/data/2.5/air_pollution?"
 class OWMService{
 

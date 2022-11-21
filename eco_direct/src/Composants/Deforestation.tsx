@@ -10,7 +10,6 @@ import {
     Legend
 } from 'recharts';
 import { PerteForestier, TreeCoverLoss, TreeCoverLossTotal, TreeLossType } from '../Models/TreeLossType';
-import { ListYearType } from '../Models/ListeYearType';
 import { CountryLocation } from '../Models/CountryLocation';
 import { geoJson } from '../Services/GeoJson';
 
@@ -31,22 +30,37 @@ export const Deforestation = () => {
 
 
     useEffect(() => {
-        getGeo();
+        // getGeo();
         getTreeCoverLoss(annees[0], annees[1]);
-        getAllTreeCoverLoss(annees[0], annees[1])
+        getAllTreeCoverLoss(annees[0], annees[1]);
+        getGeo();
     }, [])
 
 
+    /**
+     * Fonction qui appelle l'API Country Polygons pour récupérer l'ensemble des informations
+     */
     const getGeo = () => {
         geoJson.getAllData()
-            .then((response) => fonction(response))
+            .then((response) => geoLoca(response))
             .catch(err => console.error(err))
     }
 
-    const fonction = (response: any) => {
-        const data = response.features[0];
-        const { geometry, ...datas } = data;
-        console.log(geometry);
+    /**
+     * Fonction qui permet de retourner la liste des coordoné GeoJson d'un pays
+     * @param response any
+     */
+    const geoLoca = (response: any) => {
+        console.log(response);
+        
+        for (let index = 0; index < response.length; index++) {
+            let data = response.features[index];
+            const { geometry, ...datas } = data;
+            console.log(geometry);
+        }
+        // const data = response.features[0];
+        // const { geometry, ...other } = data;
+        // console.log(geometry);
 
     }
 
@@ -55,19 +69,26 @@ export const Deforestation = () => {
      * @param anneDebut number
      * @param anneFin number
      */
-    const getTreeCoverLoss = async (anneDebut: number, anneFin: number) => {
-        await GFWservice.getTreeCoverLoss("umd_tree_cover_loss", anneDebut, anneFin)
-            .then((item: TreeLossType) => (setPerteCouvertureForestiere(item.data),getListAnnees(item.data)))
+    const getTreeCoverLoss = (anneDebut: number, anneFin: number) => {
+        if (perteCouvertureForestiere === undefined) {
+            GFWservice.getTreeCoverLoss("umd_tree_cover_loss", anneDebut, anneFin)
+            .then((item: TreeLossType) => (setPerteCouvertureForestiere(item.data), getListAnnees(item.data)))
             .catch(err => console.error(err));
+        }else{
+            GFWservice.getTreeCoverLoss("umd_tree_cover_loss", anneDebut, anneFin)
+            .then((item: TreeLossType) => (setPerteCouvertureForestiere(item.data)))
+            .catch(err => console.error(err));
+        }
+        
     }
 
     /**
      * Fonction qui récupère uniquement les années présentes dans le jeux de donnée
      * @param data TreeCoverLoss[]
      */
-    const getListAnnees = (data: TreeCoverLoss[]) =>{
+    const getListAnnees = (data: TreeCoverLoss[]) => {
         let listYears: number[] = [];
-        for(const [key, value] of Object.entries(data)){
+        for (const [key, value] of Object.entries(data)) {
             listYears.push(value.umd_tree_cover_loss__year)
         }
         setListYear(listYears)
@@ -84,7 +105,7 @@ export const Deforestation = () => {
             .catch(err => console.error(err));
     }
 
-    
+
 
     /**
      * Fonction qui permet de mettre a jour les informations afficher sur la page

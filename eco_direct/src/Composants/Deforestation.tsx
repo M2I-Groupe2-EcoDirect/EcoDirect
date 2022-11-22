@@ -23,6 +23,7 @@ export const Deforestation = () => {
         2021
     ]);
 
+    const [countrys, setCountrys] = useState<CountryLocation>()
     const [geometry, setGeometri] = useState<Geometry>() // Donnée GeoJson d'une ville
 
     const [listYear, setListYear] = useState<number[]>(); // Liste des années présentes dans l'Api
@@ -42,15 +43,16 @@ export const Deforestation = () => {
     const getAllDataLocalisation = () => {
         geoJson.getAllData()
             .then((response) => (geoLoca(response)))
-            .then((geometry)=> getTreeCoverLoss(annees[0], annees[1], geometry))
-            .catch(err => console.error(err));        
+            .then((geometry) => getTreeCoverLoss(annees[0], annees[1], geometry))
+            .catch(err => console.error(err));
     }
 
     /**
      * Fonction qui permet de retourner la liste des coordoné GeoJson d'un pays
      * @param response CountryLocation
      */
-    const geoLoca = (response: CountryLocation): Geometry => {        
+    const geoLoca = (response: CountryLocation): Geometry => {
+        setCountrys(response);
         const data = response.features[0];
         const { geometry, ...other } = data;
         return geometry;
@@ -64,14 +66,14 @@ export const Deforestation = () => {
     const getTreeCoverLoss = (anneDebut: number, anneFin: number, geometry: Geometry): void => {
         if (perteCouvertureForestiere === undefined) {
             GFWservice.getTreeCoverLoss("umd_tree_cover_loss", anneDebut, anneFin, geometry)
-            .then((item: TreeLossType) => (setPerteCouvertureForestiere(item.data), getListAnnees(item.data)))
-            .catch(err => console.error(err));
-        }else{
+                .then((item: TreeLossType) => (setPerteCouvertureForestiere(item.data), getListAnnees(item.data)))
+                .catch(err => console.error(err));
+        } else {
             GFWservice.getTreeCoverLoss("umd_tree_cover_loss", anneDebut, anneFin, geometry)
-            .then((item: TreeLossType) => (setPerteCouvertureForestiere(item.data)))
-            .catch(err => console.error(err));
+                .then((item: TreeLossType) => (setPerteCouvertureForestiere(item.data)))
+                .catch(err => console.error(err));
         }
-        
+
     }
 
     /**
@@ -154,6 +156,8 @@ export const Deforestation = () => {
                 />
             </LineChart>
 
+            {perteCouvertureForestiere?.length === 0 ? <p>Chargement en cours...</p> : <p></p>}
+
             <div>
                 {
                     perteCouvertureForestiereTotale && perteCouvertureForestiereTotale.map((data, key) => {
@@ -178,19 +182,31 @@ export const Deforestation = () => {
                 {
                     listYear === undefined ? <p>Chargement des années en cours...</p>
                         :
-                        listYear[0] > listYear[1] ? <p>Attention, la date de fin est antérieur a la date de début</p>
-                            :
-                            <div>
-                                <select onChange={changeYearEnd}>
-                                    {listYear && listYear.map((year, key) => {
-                                        return <option value={year} key={key}>{year}</option>
-                                    })}
-                                </select>
-                                <button onClick={getTreeCoverLossRefresh}>Rafraichir</button>
-                            </div>
+                        <div>
+                            <select onChange={changeYearEnd}>
+                                {listYear && listYear.map((year, key) => {
+                                    return <option value={year} key={key}>{year}</option>
+                                })}
+                            </select>
+                            <button onClick={getTreeCoverLossRefresh}>Rafraichir</button>
+                        </div>
 
                 }
-                {perteCouvertureForestiere?.length === 0 ? <p>Chargement en cours...</p> : <p></p>}
+
+                <label htmlFor="">Pays</label>
+                {
+                    countrys === undefined ? <p>Chargement des années en cours...</p>
+                    :
+                    <div>
+                       <select name="" id="">
+                        {
+                            countrys.features.map((location, key)=>{
+                                return <option value={location.properties.ADMIN} key={key}>{location.properties.ADMIN}</option>
+                            })
+                        }
+                        </select> 
+                    </div>
+                }
             </div>
         </>
     )

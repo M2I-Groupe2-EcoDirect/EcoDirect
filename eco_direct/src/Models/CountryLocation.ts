@@ -1,18 +1,20 @@
 export interface CountryLocation {
+    type: string,
     features: Localisation[],
-    sql: string
-
 }
 
 export interface Localisation {
     type: string,
+    properties: Country,
     geometry: Geometry
 }
 
-export interface Geometry {
-    coordinates: Coordinates[]
+export interface Country{
+    ADMIN: string,
+    ISO_A3: string
 }
 
-export interface Coordinates {
-    entry: number[]
+export interface Geometry {
+    coordinates: [[number[]]],
+    type: string
 }

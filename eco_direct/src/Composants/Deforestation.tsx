@@ -10,7 +10,7 @@ import {
     Legend
 } from 'recharts';
 import { PerteForestier, TreeCoverLoss, TreeCoverLossTotal, TreeLossType } from '../Models/TreeLossType';
-import { CountryLocation } from '../Models/CountryLocation';
+import { CountryLocation, Geometry } from '../Models/CountryLocation';
 import { geoJson } from '../Services/GeoJson';
 
 export const Deforestation = () => {
@@ -23,45 +23,37 @@ export const Deforestation = () => {
         2021
     ]);
 
-    const [geometri, setGeometri] = useState<CountryLocation>() // Donnée GeoJson d'une ville
+    const [geometry, setGeometri] = useState<Geometry>() // Donnée GeoJson d'une ville
 
     const [listYear, setListYear] = useState<number[]>(); // Liste des années présentes dans l'Api
 
 
 
     useEffect(() => {
-        // getGeo();
-        getTreeCoverLoss(annees[0], annees[1]);
+        getAllDataLocalisation();
         getAllTreeCoverLoss(annees[0], annees[1]);
-        getGeo();
+        // getDataLocalisation();
     }, [])
 
 
     /**
      * Fonction qui appelle l'API Country Polygons pour récupérer l'ensemble des informations
      */
-    const getGeo = () => {
+    const getAllDataLocalisation = () => {
         geoJson.getAllData()
-            .then((response) => geoLoca(response))
-            .catch(err => console.error(err))
+            .then((response) => (geoLoca(response)))
+            .then((geometry)=> getTreeCoverLoss(annees[0], annees[1], geometry))
+            .catch(err => console.error(err));        
     }
 
     /**
      * Fonction qui permet de retourner la liste des coordoné GeoJson d'un pays
-     * @param response any
+     * @param response CountryLocation
      */
-    const geoLoca = (response: any) => {
-        console.log(response);
-        
-        for (let index = 0; index < response.length; index++) {
-            let data = response.features[index];
-            const { geometry, ...datas } = data;
-            console.log(geometry);
-        }
-        // const data = response.features[0];
-        // const { geometry, ...other } = data;
-        // console.log(geometry);
-
+    const geoLoca = (response: CountryLocation): Geometry => {        
+        const data = response.features[0];
+        const { geometry, ...other } = data;
+        return geometry;
     }
 
     /**
@@ -69,13 +61,13 @@ export const Deforestation = () => {
      * @param anneDebut number
      * @param anneFin number
      */
-    const getTreeCoverLoss = (anneDebut: number, anneFin: number) => {
+    const getTreeCoverLoss = (anneDebut: number, anneFin: number, geometry: Geometry): void => {
         if (perteCouvertureForestiere === undefined) {
-            GFWservice.getTreeCoverLoss("umd_tree_cover_loss", anneDebut, anneFin)
+            GFWservice.getTreeCoverLoss("umd_tree_cover_loss", anneDebut, anneFin, geometry)
             .then((item: TreeLossType) => (setPerteCouvertureForestiere(item.data), getListAnnees(item.data)))
             .catch(err => console.error(err));
         }else{
-            GFWservice.getTreeCoverLoss("umd_tree_cover_loss", anneDebut, anneFin)
+            GFWservice.getTreeCoverLoss("umd_tree_cover_loss", anneDebut, anneFin, geometry)
             .then((item: TreeLossType) => (setPerteCouvertureForestiere(item.data)))
             .catch(err => console.error(err));
         }
@@ -86,7 +78,7 @@ export const Deforestation = () => {
      * Fonction qui récupère uniquement les années présentes dans le jeux de donnée
      * @param data TreeCoverLoss[]
      */
-    const getListAnnees = (data: TreeCoverLoss[]) => {
+    const getListAnnees = (data: TreeCoverLoss[]): void => {
         let listYears: number[] = [];
         for (const [key, value] of Object.entries(data)) {
             listYears.push(value.umd_tree_cover_loss__year)
@@ -99,23 +91,21 @@ export const Deforestation = () => {
      * @param anneDebut number
      * @param anneFin number
      */
-    const getAllTreeCoverLoss = (anneDebut: number, anneFin: number) => {
+    const getAllTreeCoverLoss = (anneDebut: number, anneFin: number): void => {
         GFWservice.getAllTreeCoverLoss("umd_tree_cover_loss", anneDebut, anneFin)
             .then((item: PerteForestier) => setPerteCouvertureForestiereTotale(item.data))
             .catch(err => console.error(err));
     }
-
-
 
     /**
      * Fonction qui permet de mettre a jour les informations afficher sur la page
      * en fonction des paramètre entrer par l'utilisateur
      * @param e React.MouseEvent<HTMLButtonElement>
      */
-    const getTreeCoverLossRefresh = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const getTreeCoverLossRefresh = (e: React.MouseEvent<HTMLButtonElement>): void => {
         e.preventDefault();
         setPerteCouvertureForestiere([]);
-        getTreeCoverLoss(annees[0], annees[1]);
+        getTreeCoverLoss(annees[0], annees[1], geometry as Geometry);
         setPerteCouvertureForestiere([]);
         getAllTreeCoverLoss(annees[0], annees[1]);
     }
@@ -124,7 +114,7 @@ export const Deforestation = () => {
      * Méthode qui change l'année de départ
      * @param e ChangeEvent<HTMLInputElement>
      */
-    const changeYearStart = (e: ChangeEvent<HTMLSelectElement>) => {
+    const changeYearStart = (e: ChangeEvent<HTMLSelectElement>): void => {
         setAnnees([parseInt(e.target.value), annees[1]])
 
     }
@@ -132,7 +122,7 @@ export const Deforestation = () => {
      * Méthode qui change l'année de fin
      * @param e ChangeEvent<HTMLInputElement>
      */
-    const changeYearEnd = (e: ChangeEvent<HTMLSelectElement>) => {
+    const changeYearEnd = (e: ChangeEvent<HTMLSelectElement>): void => {
         setAnnees([annees[0], parseInt(e.target.value)])
     }
 
@@ -202,21 +192,6 @@ export const Deforestation = () => {
                 }
                 {perteCouvertureForestiere?.length === 0 ? <p>Chargement en cours...</p> : <p></p>}
             </div>
-
-
-            {geometri && geometri.features.map((feature, key) => {
-                return <ul key={key}>
-                    {feature.geometry.coordinates.map((coord, i) => {
-                        return <li key={i}>
-                            {coord.entry.map((value, j) => {
-                                return <div key={j}>
-                                    {value}
-                                </div>
-                            })}
-                        </li>
-                    })}
-                </ul>
-            })}
         </>
     )
 }

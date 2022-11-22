@@ -23,17 +23,15 @@ export const Deforestation = () => {
         2021
     ]);
 
-    const [countrys, setCountrys] = useState<CountryLocation>()
+    const [countrys, setCountrys] = useState<CountryLocation>() // Liste complète des données liée aux différends pays
     const [geometry, setGeometri] = useState<Geometry>() // Donnée GeoJson d'une ville
-
+    const [country, setCountry] = useState<string>() // Donnée complète d'une ville avec nom
     const [listYear, setListYear] = useState<number[]>(); // Liste des années présentes dans l'Api
 
 
 
     useEffect(() => {
         getAllDataLocalisation();
-        getAllTreeCoverLoss(annees[0], annees[1]);
-        // getDataLocalisation();
     }, [])
 
 
@@ -43,7 +41,7 @@ export const Deforestation = () => {
     const getAllDataLocalisation = () => {
         geoJson.getAllData()
             .then((response) => (geoLoca(response)))
-            .then((geometry) => getTreeCoverLoss(annees[0], annees[1], geometry))
+            .then((geometry) => (getTreeCoverLoss(annees[0], annees[1], geometry), getAllTreeCoverLoss(annees[0], annees[1], geometry)))
             .catch(err => console.error(err));
     }
 
@@ -93,10 +91,26 @@ export const Deforestation = () => {
      * @param anneDebut number
      * @param anneFin number
      */
-    const getAllTreeCoverLoss = (anneDebut: number, anneFin: number): void => {
-        GFWservice.getAllTreeCoverLoss("umd_tree_cover_loss", anneDebut, anneFin)
+    const getAllTreeCoverLoss = (anneDebut: number, anneFin: number, geometry: Geometry): void => {
+        GFWservice.getAllTreeCoverLoss("umd_tree_cover_loss", anneDebut, anneFin, geometry)
             .then((item: PerteForestier) => setPerteCouvertureForestiereTotale(item.data))
             .catch(err => console.error(err));
+    }
+
+    /**
+     * Récuperer les nouvelle coordonné en fonction du nom du pays
+     */
+    const setNewGeometry = () =>{
+        let listCountry = countrys as CountryLocation;
+        for (let index = 0; index < listCountry.features.length; index++) {
+            if (country === listCountry.features[index].properties.ADMIN) {
+                const data = listCountry.features[index];
+                const { geometry, ...other } = data;
+                setGeometri(geometry);
+                setCountry(listCountry.features[index].properties.ADMIN)
+                break
+            }
+        }
     }
 
     /**
@@ -107,9 +121,10 @@ export const Deforestation = () => {
     const getTreeCoverLossRefresh = (e: React.MouseEvent<HTMLButtonElement>): void => {
         e.preventDefault();
         setPerteCouvertureForestiere([]);
+        // setNewGeometry();
         getTreeCoverLoss(annees[0], annees[1], geometry as Geometry);
         setPerteCouvertureForestiere([]);
-        getAllTreeCoverLoss(annees[0], annees[1]);
+        getAllTreeCoverLoss(annees[0], annees[1], geometry as Geometry);
     }
 
     /**
@@ -126,6 +141,23 @@ export const Deforestation = () => {
      */
     const changeYearEnd = (e: ChangeEvent<HTMLSelectElement>): void => {
         setAnnees([annees[0], parseInt(e.target.value)])
+    }
+
+    /**
+     * Fonction qui permet de changer le pays de recherche
+     * @param e ChangeEvent<HTMLSelectElement>
+     */
+    const changeCountry = (e: ChangeEvent<HTMLSelectElement>): void => {
+        let listCountry = countrys as CountryLocation;
+        for (let index = 0; index < listCountry.features.length; index++) {
+            if (e.target.value === listCountry.features[index].properties.ADMIN) {
+                const data = listCountry.features[index];
+                const { geometry, ...other } = data;
+                setGeometri(geometry);
+                setCountry(listCountry.features[index].properties.ADMIN)
+                break
+            }
+        }
     }
 
 
@@ -196,16 +228,16 @@ export const Deforestation = () => {
                 <label htmlFor="">Pays</label>
                 {
                     countrys === undefined ? <p>Chargement des années en cours...</p>
-                    :
-                    <div>
-                       <select name="" id="">
-                        {
-                            countrys.features.map((location, key)=>{
-                                return <option value={location.properties.ADMIN} key={key}>{location.properties.ADMIN}</option>
-                            })
-                        }
-                        </select> 
-                    </div>
+                        :
+                        <div>
+                            <select onChange={changeCountry}>
+                                {
+                                    countrys.features.map((location, key) => {
+                                        return <option value={location.properties.ADMIN} key={key}>{location.properties.ADMIN}</option>
+                                    })
+                                }
+                            </select>
+                        </div>
                 }
             </div>
         </>

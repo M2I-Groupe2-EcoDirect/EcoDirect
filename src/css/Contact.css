@@ -1,68 +1,70 @@
-.ensembleContact{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.contactezNous{
-    margin-top: 3%;
-    margin-bottom: 3%;
-    display: flex;
-    justify-content: center;
-    width: 16%;
-    background-color: rgb(186, 234, 243);
-    font-weight: bolder;
-    font-size: large;
-    border: 1px solid grey;
-    border-radius: 3%;
-}
-
-.boiteFormulaire{
-    display: flex;
-    flex-direction: column;
-    width: 60%;
-    margin-left: 10%;
-    margin-right: 10%;
-    height: 100%;
-    border: 1px solid grey;
-    border-radius: 1%;
-}
-
-.entrerEmail{
-    margin-left: 5%;
-    margin-right: 5%;
-    font-weight: bolder;
-    font-size: large;
-}
-
-.email{
-    background-color: rgb(186, 234, 243);
-
-}
-.texteFormulaire{
-    display: flex;
-    flex-direction: column;
-    margin-left: 5%;
-    margin-right: 5%;
-    font-weight: bolder;
-    font-size: large;
-}
-
-.entrerTexte{
-    width: 100%;
-
-    display:flex;
-}
-.zoneTexte{
-    height: 400px;
-    width: 95%;
-    background-color: rgb(186, 234, 243);
-    border-radius: 1%;
-}
-
-.buttonEnvoyer{
-    display: flex;
-    flex-direction: row-reverse;
-    width: 95%;
-    margin-bottom: 3%;
-    margin-top: 3%;
+@media only screen and (max-width: 767px){
+    .ensembleContact{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .contactezNous{
+        margin-top: 3%;
+        margin-bottom: 3%;
+        display: flex;
+        justify-content: center;
+        width: 20%;
+        background-color: rgb(186, 234, 243);
+        font-weight: bolder;
+        font-size: large;
+        border: 1px solid grey;
+        border-radius: 3%;
+    }
+    
+    .boiteFormulaire{
+        display: flex;
+        flex-direction: column;
+        width: 60%;
+        margin-left: 10%;
+        margin-right: 10%;
+        height: 100%;
+        border: 1px solid grey;
+        border-radius: 1%;
+    }
+    
+    .entrerEmail{
+        margin-left: 5%;
+        margin-right: 5%;
+        font-weight: bolder;
+        font-size: large;
+    }
+    
+    .email{
+        background-color: rgb(186, 234, 243);
+    
+    }
+    .texteFormulaire{
+        display: flex;
+        flex-direction: column;
+        margin-left: 5%;
+        margin-right: 5%;
+        font-weight: bolder;
+        font-size: large;
+    }
+    
+    .entrerTexte{
+        width: 100%;
+    
+        display:flex;
+    }
+    .zoneTexte{
+        height: 400px;
+        width: 95%;
+        background-color: rgb(186, 234, 243);
+        border-radius: 1%;
+    }
+    
+    .buttonEnvoyer{
+        display: flex;
+        flex-direction: row-reverse;
+        width: 95%;
+        margin-bottom: 3%;
+        margin-top: 3%;
+    }    
 }

@@ -1,0 +1,10 @@
+.graphique{
+    display: flex;
+    justify-content: center;
+}
+
+.parameters{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}

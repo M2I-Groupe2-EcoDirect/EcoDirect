@@ -12,6 +12,7 @@ import {
 import { PerteForestier, TreeCoverLoss, TreeCoverLossTotal, TreeLossType } from '../Models/TreeLossType';
 import { CountryLocation, Geometry } from '../Models/CountryLocation';
 import { geoJson } from '../Services/GeoJson';
+import "../css/Composants/deforestation/deforestation.css"
 
 export const Deforestation = () => {
 
@@ -100,7 +101,7 @@ export const Deforestation = () => {
     /**
      * Récuperer les nouvelle coordonné en fonction du nom du pays
      */
-    const setNewGeometry = () =>{
+    const setNewGeometry = () => {
         let listCountry = countrys as CountryLocation;
         for (let index = 0; index < listCountry.features.length; index++) {
             if (country === listCountry.features[index].properties.ADMIN) {
@@ -165,28 +166,82 @@ export const Deforestation = () => {
     return (
         <>
             <h1>Perte de la couverture forestière en hectare</h1>
-            <LineChart
-                width={500}
-                height={300}
-                data={perteCouvertureForestiere}
-                margin={{
-                    top: 5,
-                    right: 30,
-                    left: 20,
-                    bottom: 5
-                }}
-            >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="umd_tree_cover_loss__year" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line
-                    type="monotone"
-                    dataKey="area__ha"
-                    stroke="#8884d8"
-                />
-            </LineChart>
+            <div className='graphique'>
+                <div>
+                    <LineChart
+                        width={500}
+                        height={300}
+                        data={perteCouvertureForestiere}
+                        margin={{
+                            top: 5,
+                            right: 30,
+                            left: 20,
+                            bottom: 5
+                        }}
+                    >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="umd_tree_cover_loss__year" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Line
+                            type="monotone"
+                            dataKey="area__ha"
+                            stroke="#8884d8"
+                        />
+                    </LineChart>
+                </div>
+                <div className='parameters'>
+                    <div className='startYears'>
+                        <label htmlFor="">Annee de début</label>
+                        {
+                            listYear === undefined ? <p>Chargement des année en cours...</p>
+                                :
+                                <select onChange={changeYearStart}>
+                                    {listYear && listYear.map((year, key) => {
+                                        return <option value={year} key={key}>{year}</option>
+                                    })}
+                                </select>
+                        }
+                    </div>
+                    <div className='endYears'>
+                        <label htmlFor="">Annee de fin</label>
+                        {
+                            listYear === undefined ? <p>Chargement des années en cours...</p>
+                                :
+                                <div>
+                                    <select onChange={changeYearEnd}>
+                                        {listYear && listYear.map((year, key) => {
+                                            return <option value={year} key={key}>{year}</option>
+                                        })}
+                                    </select>
+                                </div>
+                        }
+                    </div>
+                    <div className='country'>
+                        <label htmlFor="">Pays</label>
+                        {
+                            countrys === undefined ? <p>Chargement des années en cours...</p>
+                                :
+                                <div>
+                                    <select onChange={changeCountry}>
+                                        {
+                                            countrys.features.map((location, key) => {
+                                                return <option value={location.properties.ADMIN} key={key}>{location.properties.ADMIN}</option>
+                                            })
+                                        }
+                                    </select>
+                                </div>
+                        }
+                    </div>
+                    <div className='refresh'>
+                        <button onClick={getTreeCoverLossRefresh}>Rafraichir</button>
+                    </div>
+                </div>
+
+
+            </div>
+
 
             {perteCouvertureForestiere?.length === 0 ? <p>Chargement en cours...</p> : <p></p>}
 
@@ -197,49 +252,7 @@ export const Deforestation = () => {
                     })
                 }
             </div>
-            <div>
-                <label htmlFor="">Annee de début</label>
-                {
-                    listYear === undefined ? <p>Chargement des année en cours...</p>
-                        :
-                        <select onChange={changeYearStart}>
-                            {listYear && listYear.map((year, key) => {
-                                return <option value={year} key={key}>{year}</option>
-                            })}
-                        </select>
-                }
 
-                <label htmlFor="">Annee de fin</label>
-
-                {
-                    listYear === undefined ? <p>Chargement des années en cours...</p>
-                        :
-                        <div>
-                            <select onChange={changeYearEnd}>
-                                {listYear && listYear.map((year, key) => {
-                                    return <option value={year} key={key}>{year}</option>
-                                })}
-                            </select>
-                            <button onClick={getTreeCoverLossRefresh}>Rafraichir</button>
-                        </div>
-
-                }
-
-                <label htmlFor="">Pays</label>
-                {
-                    countrys === undefined ? <p>Chargement des années en cours...</p>
-                        :
-                        <div>
-                            <select onChange={changeCountry}>
-                                {
-                                    countrys.features.map((location, key) => {
-                                        return <option value={location.properties.ADMIN} key={key}>{location.properties.ADMIN}</option>
-                                    })
-                                }
-                            </select>
-                        </div>
-                }
-            </div>
         </>
     )
 }
